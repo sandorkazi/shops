@@ -1,5 +1,6 @@
-#!/usr/bin/env python
-#  coding=utf-8
+"""
+Google sheet tools.
+"""
 
 import gspread
 import pandas as pd
@@ -34,7 +35,6 @@ class GSpreadWrapper:
     def upload(self, sheet: str, df: pd.DataFrame):
         """
         Upload an entire sheet of data.
-
         :param sheet: worksheet name
         :param df: `pandas` `DataFrame` to upload
         """
@@ -59,7 +59,6 @@ class GSpreadWrapper:
     def download(self, sheet: str) -> pd.DataFrame:
         """
         Download an entire sheet of data.
-
         :param sheet: worksheet name
         :return: `pandas` `DataFrame` from the data
         """
@@ -69,7 +68,6 @@ class GSpreadWrapper:
     def set_value(self, sheet: str, row: int, column: int, value: Any):
         """
         Set a value in a cell.
-
         :param sheet: worksheet name
         :param row: row index (0..)
         :param column: column index (0..)
@@ -80,7 +78,6 @@ class GSpreadWrapper:
     def get_value(self, sheet: str, row: int, column: int) -> Any:
         """
         Set a value in a cell.
-
         :param sheet: worksheet name
         :param row: row index (0..)
         :param column: column index (0..)
@@ -100,7 +97,6 @@ class GSpreadWrapper:
     ):
         """
         Set a value based on vertical or horizontal lookup.
-
         :param sheet: worksheet name
         :param axis: vertical (1) or horizontal (0) lookup (default: 1)
         :param lookup_value: value to lookup
@@ -132,7 +128,6 @@ class GSpreadWrapper:
     ):
         """
         Get a value based on vertical or horizontal lookup.
-
         :param sheet: worksheet name
         :param axis: vertical (1) or horizontal (0) lookup (default: 1)
         :param lookup_value: value to lookup

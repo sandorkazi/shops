@@ -1,3 +1,7 @@
+"""
+coolstuffinc.com
+"""
+
 import bs4
 import numpy as np
 from collections import OrderedDict
@@ -7,9 +11,13 @@ from scraper import SingleShopItem
 
 
 class Page(HTML5PageBase):
+    """
+    Page representation.
+    """
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         try:
             return int(self.parsed.find_all("a", class_="pagelink")[-3].text.strip())
         except (ValueError, IndexError, AttributeError):
@@ -64,6 +72,9 @@ class Page(HTML5PageBase):
 
 
 class Shop(ShopBase):
+    """
+    Shop representation.
+    """
 
     def __init__(
             self,

@@ -1,4 +1,9 @@
+"""
+Shop representation options.
+"""
+
 import pandas as pd
+import sys
 from .item import ColNames
 from .page import PageBase
 from collections import OrderedDict
@@ -89,7 +94,6 @@ class ShopBase:
         options.headless = headless
         driver = webdriver.Chrome(
             options=options,
-            keep_alive=True,
         )
         driver.set_window_size(*dimensions)
         return driver
@@ -112,6 +116,8 @@ class ShopBase:
             item_limit: int,
             page_size: int,
     ) -> Any:
+        sys.stdout.flush()
+        print(f"Downloading from: {url_format.format(page='PAGE')}", flush=True)
         pages = []
         page1 = page_type(
             driver=driver,
@@ -129,9 +135,7 @@ class ShopBase:
         max_page = page1.max_page
         if page_limit < 1:
             page_limit = max_page
-        page_range = iter(tqdm(range(page_limit+1)))
-        next(page_range)
-        for p in page_range:
+        for p in tqdm(range(1, page_limit+1)):
             if p == 1:
                 continue
             page = page_type(
@@ -171,6 +175,9 @@ class ShopBase:
         return df
 
     def upload(self):
+        """
+        Upload the DataFrame representation of the shop to Google Spreadsheets.
+        """
         assert self.spreadsheet is not None, "Can't upload when spreadsheet was not set."
         uploader = GSpreadWrapper(
             spreadsheet=self.spreadsheet,

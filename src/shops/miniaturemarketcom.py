@@ -1,3 +1,7 @@
+"""
+miniaturemarket.com
+"""
+
 import bs4
 import numpy as np
 from collections import OrderedDict
@@ -7,9 +11,13 @@ from scraper import SingleShopItem
 
 
 PAGE_SIZE_MULTIPLIER = 32
+"""Multipler to set startAt value instead of page (but use the same implementation)."""
 
 
 class Page(HTML5PageBase):
+    """
+    PAgE representation.
+    """
 
     def __init__(
         self,
@@ -25,6 +33,7 @@ class Page(HTML5PageBase):
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         try:
             return int(self.parsed.find_all("a", href="#")[-1].text.strip())
         except (ValueError, IndexError, AttributeError):
@@ -82,6 +91,9 @@ class Page(HTML5PageBase):
 
 
 class Shop(ShopBase):
+    """
+    Shop representation.
+    """
 
     def __init__(
             self,

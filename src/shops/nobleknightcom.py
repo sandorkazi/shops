@@ -1,3 +1,7 @@
+"""
+nobleknight.com
+"""
+
 import bs4
 import numpy as np
 import re
@@ -12,6 +16,9 @@ Regex = Pattern[str]
 
 
 class NobleKnightPriceParser:
+    """
+    Price parser.
+    """
 
     price = re.compile(" Price *[$]([0-9.]*)")
     old_price = re.compile("Was *[$]([0-9.]*)")
@@ -19,6 +26,12 @@ class NobleKnightPriceParser:
 
     @staticmethod
     def get_price(item: bs4.BeautifulSoup, regex: Regex) -> float:
+        """
+        Parse the price based on the specified regex.
+        :param item: soup parsed value of the page
+        :param regex: regex to match
+        :return: the value found
+        """
         try:
             return float(regex.findall(item.text)[0])
         except (IndexError, ValueError):
@@ -26,9 +39,13 @@ class NobleKnightPriceParser:
 
 
 class Page(HTML5PageBase):
+    """
+    Page representation.
+    """
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         try:
             return int(self.parsed.findAll(class_='page-link')[-2].text)
         except ValueError:
@@ -98,6 +115,9 @@ class Page(HTML5PageBase):
 
 
 class Shop(ShopBase):
+    """
+    Shop representation.
+    """
 
     def __init__(
             self,

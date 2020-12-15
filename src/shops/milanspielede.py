@@ -1,3 +1,7 @@
+"""
+milan-spiele.de
+"""
+
 import bs4
 import numpy as np
 import re
@@ -5,17 +9,23 @@ from collections import OrderedDict
 from scraper import HTML5PageBase
 from scraper import ShopBase
 from scraper import SingleShopItem
-from selenium import webdriver
 from typing import List, Tuple
 
 
 class Page(HTML5PageBase):
+    """
+    Page representation.
+    """
 
     stock_regex = re.compile("images/.*[.]gif")
+    """Regex for stock status check."""
+
     count_regex = re.compile("Artikel [0-9]* bis [0-9]*[(]von ([0-9]*)[)]")
+    """Regex to find total count."""
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         try:
             total = int(
                 self.count_regex.findall(self.parsed.find(class_="smallText").text.strip())[0]
@@ -40,8 +50,8 @@ class Page(HTML5PageBase):
         except (AttributeError, TypeError, ValueError):
             s.title = None
         try:
-            s.stock = item.find("img", src=re.compile("images/.*[.]gif"))
-            s.stock = f"{s.stock.get('alt').strip()} - {s.stock.get('src').replace('images/','').replace('.gif','')}"
+            x = item.find("img", src=re.compile("images/.*[.]gif"))
+            s.stock = f"{x.get('alt').strip()} - {x.get('src').replace('images/','').replace('.gif','')}"
         except (AttributeError, TypeError, ValueError):
             s.stock = None
         try:
@@ -54,14 +64,13 @@ class Page(HTML5PageBase):
             s.image_url = None
         try:
             prices = item.find_all("nobr")
-            s.orig_price, s.orig_old_price, *_ = *prices[::-1], "", ""
             try:
-                s.orig_price = float(s.orig_price.text.replace(",", ".").replace("€", "").strip())
+                s.orig_price = float(prices[-1].text.replace(",", ".").replace("€", "").strip())
             except (AttributeError, TypeError, ValueError):
                 s.orig_price = np.NaN
             try:
                 # noinspection PyUnresolvedReferences
-                s.orig_old_price = float(s.orig_old_price.text.replace(",", ".").replace("€", "").strip())
+                s.orig_old_price = float(prices[-2].text.replace(",", ".").replace("€", "").strip())
             except (AttributeError, TypeError, ValueError):
                 s.orig_old_price = np.NaN
         except (AttributeError, TypeError, ValueError):
@@ -71,9 +80,13 @@ class Page(HTML5PageBase):
 
 
 class SubPage(HTML5PageBase):
+    """
+    Subpage representation to look up the URL we should normally walk.
+    """
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         return 1
 
     @staticmethod
@@ -102,6 +115,9 @@ class SubPage(HTML5PageBase):
 
 
 class Shop(ShopBase):
+    """
+    Shop representation.
+    """
 
     def __init__(
             self,
@@ -136,13 +152,14 @@ class Shop(ShopBase):
             for title, name in OrderedDict(
                 News="neuheiten-c-102.html",
                 Offers="angebote-c-103.html",
-                Recommendations="empfehlungen-c-555.html",
                 GameWorlds="spielewelten-c-752.html",
                 Games="spiele-c-82.html",
-                # Puzzle="puzzle-c-929.html",
                 Accessories="zubehr-c-868.html",
-                # Awards="auszeichnungen-c-105.html",
                 Used="gebraucht-c-104.html",
+
+                # Recommendations="empfehlungen-c-555.html",
+                # Puzzle="puzzle-c-929.html",
+                # Awards="auszeichnungen-c-105.html",
             ).items()
         ]
         return OrderedDict(

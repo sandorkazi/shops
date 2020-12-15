@@ -1,3 +1,7 @@
+"""
+board-game.co.uk
+"""
+
 import bs4
 import numpy as np
 from collections import OrderedDict
@@ -7,9 +11,13 @@ from scraper import SingleShopItem
 
 
 class Page(HTML5PageBase):
+    """
+    Page representation.
+    """
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         try:
             return int(self.parsed.find(class_='bpf-filter-paging-links').findAll("a")[-2].get("data-page"))
         except (AttributeError, ValueError, TypeError, IndexError):
@@ -80,6 +88,9 @@ class Page(HTML5PageBase):
 
 
 class Shop(ShopBase):
+    """
+    Shop representation.
+    """
 
     def __init__(
             self,

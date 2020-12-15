@@ -1,16 +1,21 @@
+"""
+Page representation options.
+"""
+
 import bs4
 import json
 import os
 import pandas as pd
 import pickle
 import time
-from .item import ShopItem, SingleShopItem, ColNames
+from abc import ABC
+from scraper.item import ShopItem, SingleShopItem, ColNames
 from selenium import webdriver
 from slugify import slugify
 from typing import Any, Dict, List
 
 
-class PageBase:
+class PageBase(ABC):
     """
     Representation of a page (and related caching).
     """
@@ -105,6 +110,7 @@ class PageBase:
 
     @property
     def max_page(self) -> int:
+        """The number of the last page."""
         raise NotImplementedError()
 
     @staticmethod
@@ -120,7 +126,7 @@ class PageBase:
         raise NotImplementedError()
 
 
-class JSONPageBase(PageBase):
+class JSONPageBase(PageBase, ABC):
     """
     Representation of a JSON page.
     """
@@ -142,7 +148,7 @@ class JSONPageBase(PageBase):
         raise NotImplementedError()
 
 
-class HTML5PageBase(PageBase):
+class HTML5PageBase(PageBase, ABC):
     """
     Representation of a HTML5 page.
     """

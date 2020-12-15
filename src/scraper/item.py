@@ -1,10 +1,13 @@
+"""
+Item representation.
+"""
+
 import numpy as np
 import pandas as pd
 from collections import OrderedDict
 from typing import List, Any
 
-
-ItemSchema = OrderedDict(
+Record = OrderedDict(
     group=None,
     title=None,
     stock=None,
@@ -18,29 +21,36 @@ ItemSchema = OrderedDict(
     url=None,
     image_url=None,
 )
+"""Possible keys and initial values of a record."""
 
 
 class ColNames:
+    """
+    Column name mappings.
+    """
     raw = "_raw"
     error = "_error"
     etc = "_others"
 
 
-ItemSchema[ColNames.raw] = None
-ItemSchema[ColNames.error] = None
+Record[ColNames.raw] = None
+Record[ColNames.error] = None
 
 
 class ShopItem(OrderedDict):
+    """
+    Representation of an item in a shops collection listing (which is NOT necessarily an actual item).
+    """
 
     def __init__(
             self,
             **kwargs,
     ):
         super().__init__()
-        for k, v in ItemSchema.items():
+        for k, v in Record.items():
             super().__setitem__(k, kwargs.get(k, v))
         for k, v in kwargs.items():
-            if k not in ItemSchema.keys():
+            if k not in Record.keys():
                 super().__setitem__(k, v)
         self._init_complete = True
 
@@ -60,38 +70,56 @@ class ShopItem(OrderedDict):
     ):
         if "_init_complete" not in self.__dict__:
             return super().__setattr__(key, value)
-        elif key in self.__dict__:
-            super().__setattr__(key, value)
         else:
+            if callable(value):
+                try:
+                    value = value()
+                except (IndexError, ValueError, AttributeError, IndexError):
+                    value = Record.get(key, None)
             self.__setitem__(key, value)
 
     def df(self):
+        """
+        Returns the item description in a pandas DataFrame.
+        :return: dataframe representation
+        """
         raise NotImplementedError()
 
     @staticmethod
     def empty_df():
-        return pd.DataFrame(
-            None,
-            columns=list(ItemSchema.keys()) + [ColNames.error, ColNames.raw, ColNames.etc]
-        )
+        """
+        Returns an empty df having all the columns an item would.
+        :return: emtpy df
+        """
+        return pd.DataFrame(columns=list(Record.keys()) + [ColNames.error, ColNames.raw, ColNames.etc])
 
 
 class SingleShopItem(ShopItem):
+    """
+    Representation of an item in a shops collection listing - which is an actual item.
+    """
 
     def df(self):
+        """
+        Return DataFrame representation of the item.
+        :return: DataFrame
+        """
         s = pd.Series(
-            index=ItemSchema.keys(),
-            data=[getattr(self, k) for k in ItemSchema.keys()],
+            index=Record.keys(),
+            data=[getattr(self, k) for k in Record.keys()],
         )
         s[ColNames.etc] = {
             k: v
             for k, v in self.items()
-            if k not in ItemSchema.keys()
+            if k not in Record.keys()
         }
         return pd.DataFrame.from_records([s])
 
 
 class CompositeShopItem(ShopItem):
+    """
+    Representation of an item in a shops collection listing - which can represent multiple items (see: nobleknight.com).
+    """
 
     def _column(
             self,
@@ -105,17 +133,21 @@ class CompositeShopItem(ShopItem):
             return [value for _ in range(length)]
 
     def df(self):
+        """
+        Return DataFrame representation of the item(s).
+        :return: DataFrame
+        """
         lengths = [len(v) for v in self.values() if isinstance(v, list)]
         if lengths:
             try:
                 assert min(lengths) == max(lengths), "Bad Shopitems as list length fluctuate."
                 length = lengths[0]
                 df = pd.DataFrame(
-                    data=[self._column(k, length) for k in ItemSchema.keys()],
-                    index=list(ItemSchema.keys()),
+                    data=[self._column(k, length) for k in Record.keys()],
+                    index=list(Record.keys()),
                     columns=range(length),
                 )
-                etc_keys = [k for k in self.keys() if k not in ItemSchema.keys()]
+                etc_keys = [k for k in self.keys() if k not in Record.keys()]
                 dfx = pd.DataFrame(
                     data=[self._column(k, length) for k in etc_keys],
                     index=list(etc_keys),
@@ -143,12 +175,12 @@ class CompositeShopItem(ShopItem):
                 )
         else:
             s = pd.Series(
-                index=ItemSchema.keys(),
-                data=[getattr(self, k) for k in ItemSchema.keys()],
+                index=Record.keys(),
+                data=[getattr(self, k) for k in Record.keys()],
             )
             s[ColNames.etc] = {
                 k: v
                 for k, v in self.items()
-                if k not in ItemSchema.keys()
+                if k not in Record.keys()
             }
             return pd.DataFrame.from_records([s])

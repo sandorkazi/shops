@@ -1,1 +1,5 @@
-from .converter import get_rate, convert_value, convert_series
+"""
+Currency conversion implementation.
+"""
+
+from .converter import *

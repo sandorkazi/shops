@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 #  coding=utf-8
+"""
+Command line component to the shop downloader.
+"""
 
 import click
 import logging
@@ -14,9 +17,14 @@ from importlib import util as import_util
 @click.option("-t/ ", "--test-mode/--normal-mode", default=False)
 @click.option(" /-p", "--public/--private", default=True)
 @click.option("-d", "--date-override", default=None)
-def cmd(url, test_mode, public, date_override):
+def _cmd(url, test_mode, public, date_override):
     logger = logging.Logger(name="shops")
-    url = url.strip("http://").strip("https://").strip("www.")
+    if url.startswith("http://"):
+        url = url[7:]
+    elif url.startswith("https://"):
+        url = url[8:]
+    if url.startswith("www."):
+        url = url[4:]
     url = url.split("/")[0]
     module_name = ''.join((i for i in url if i.isalnum()))
     if test_mode:
@@ -46,4 +54,4 @@ def cmd(url, test_mode, public, date_override):
 
 
 if __name__ == "__main__":
-    cmd()
+    _cmd()
