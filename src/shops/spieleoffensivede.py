@@ -48,7 +48,7 @@ class Page(HTML5PageBase):
     def _parse_item(base_url: str, item: bs4.BeautifulSoup) -> SingleShopItem:
         s = SingleShopItem()
         s.title = lambda: item.find("a", class_="alamain").find("font").text.strip()
-        s.stock = lambda: item.find_all("a", class_="kbw")[-1].get("title").strip()
+        s.stock = lambda: item.find("form").find_all("input")[-1].get("title").split("\n")[1].strip()
         s.url = lambda: f'{base_url}{item.find("a", class_="alamain").get("href").strip()}'
         s.image_url = lambda: f'{base_url}{item.find("img").get("src").strip()}'
         s.orig_price = lambda: (
